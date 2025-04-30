@@ -4,4 +4,5 @@ globs:
 alwaysApply: true
 ---
 - DO NOT do things other than what's instructed
+- DO NOT start writing code until explicit approval is given
 - always run `pio run` to confirm build succeeds, if it fails, try to fix it up to **3 times**
