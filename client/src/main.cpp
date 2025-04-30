@@ -1,22 +1,12 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
-#include <esp_timer.h>
 #include "config.h"
 #include "buffer.h"
+#include "AudioManager.h"
 
 // ─── UDP ───
 WiFiUDP udp;
-
-// ─── 再生 ISR (8 kHz) ───
-void IRAM_ATTR onAudio(void*) {
-  if (usedBytes() == 0) {                // バッファ空 → 無音 0x80
-    dacWrite(DAC_PIN, 0x80);
-    return;
-  }
-  uint8_t s = ring[tail];
-  tail = (tail + 1) % RING;
-  dacWrite(DAC_PIN, s);
-}
+AudioManager audioManager;
 
 // ─── 受信タスク (Core0) ───
 void udpTask(void*) {
@@ -50,15 +40,12 @@ void setup() {
   // 受信タスクを Core0 (Wi-Fi と同コア) に
   xTaskCreatePinnedToCore(udpTask, "udpTask", 4096, nullptr, 1, nullptr, 0);
 
-  // 再生タイマー (Core1 で実行)
-  esp_timer_create_args_t cfg{
-    .callback = &onAudio,
-    .arg      = nullptr,
-    .name     = "audio"
-  };
-  esp_timer_handle_t t;
-  esp_timer_create(&cfg, &t);
-  esp_timer_start_periodic(t, 1000000 / SR);   // µs
+  // 再生タイマー設定
+  if (!audioManager.begin()) {
+    Serial.println("Failed to start audio manager");
+  } else {
+    Serial.println("Audio manager started");
+  }
 }
 
 void loop() {}
