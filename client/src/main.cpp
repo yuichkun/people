@@ -1,22 +1,8 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <esp_timer.h>
-
-// ─── 設定 ───
-const char* SSID = "escentier";
-const char* PASS = "escentier";
-
-constexpr int   SR        = 8000;        // 8 kHz
-constexpr uint8_t DAC_PIN = 25;          // GPIO25 内蔵 DAC1
-constexpr size_t RING     = 16384;       // 16 kB (≈ 2 s)
-constexpr int   UDP_PORT  = 5005;        // 任意
-
-// ─── バッファ ───
-uint8_t ring[RING];
-volatile size_t head = 0, tail = 0;      // write / read index
-
-inline size_t freeBytes() { return (tail + RING - head - 1) % RING; }
-inline size_t usedBytes() { return (head + RING - tail) % RING;     }
+#include "config.h"
+#include "buffer.h"
 
 // ─── UDP ───
 WiFiUDP udp;
