@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- DO NOT do things other than what's instructed
+- always run `pio run` to confirm build succeeds, if it fails, try to fix it up to **3 times**
