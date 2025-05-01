@@ -17,5 +17,6 @@ constexpr size_t RING     = 16384;       // 16 kB (≈ 2 s)
 
 // Network configuration
 constexpr int   UDP_PORT  = 5005;        // 任意
+constexpr int   HTTP_PORT = 80;          // HTTP サーバーポート
 
 #endif // CONFIG_H 
