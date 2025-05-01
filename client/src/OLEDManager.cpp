@@ -7,7 +7,8 @@ OLEDManager::OLEDManager()
       lastUpdateTime(0),
       updateInterval(50),
       sdaPin(21),
-      sclPin(22)
+      sclPin(22),
+      verticalFlip(false)
 {
 }
 
@@ -37,13 +38,24 @@ void OLEDManager::reinitialize() {
         u8g2 = nullptr;
     }
     
-    // Create new instance
-    u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
+    // Create new instance with proper rotation
+    if (verticalFlip) {
+        u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R2, U8X8_PIN_NONE);
+    } else {
+        u8g2 = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
+    }
     
     if (u8g2->begin()) {
         u8g2->enableUTF8Print();
         textX = 128; // Reset position
         lastUpdateTime = 0; // Reset timer
+    }
+}
+
+void OLEDManager::setVerticalFlip(bool flip) {
+    if (verticalFlip != flip) {
+        verticalFlip = flip;
+        reinitialize();
     }
 }
 

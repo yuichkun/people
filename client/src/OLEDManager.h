@@ -14,6 +14,7 @@ private:
     int updateInterval;
     uint8_t sdaPin;
     uint8_t sclPin;
+    bool verticalFlip;
     
 public:
     OLEDManager();
@@ -22,6 +23,7 @@ public:
     bool begin(uint8_t sda = 21, uint8_t scl = 22);
     void setText(const String& newText);
     void update();
+    void setVerticalFlip(bool flip);
     void reinitialize();
 };
 

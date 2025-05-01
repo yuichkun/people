@@ -64,6 +64,7 @@ void setup() {
     Serial.println("Failed to start OLED display");
   } else {
     Serial.println("OLED display started");
+    oledManager.setVerticalFlip(false);
     oledManager.setText("うお〜〜！コップにはめて見るとイカちぃ〜最高！！");
   }
   
