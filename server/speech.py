@@ -25,8 +25,8 @@ def generateSpeech(text: str) -> None:
 
 def _convertAudio() -> None:
     """
-    Convert 'tmp.aiff' to 'tmp.wav' using ffmpeg with 8000Hz, mono, wave
-    format.
+    Convert 'tmp.aiff' to 'tmp.wav' using ffmpeg with 8000Hz, mono, 8-bit PCM
+    (unsigned 8-bit, sampwidth=1).
     """
     input_file = "tmp.aiff"
     output_file = "tmp.wav"
@@ -35,12 +35,11 @@ def _convertAudio() -> None:
             "ffmpeg",
             "-y",  # Overwrite output file if it exists
             "-i", input_file,
-            "-ar", "8000",
-            "-ac", "1",
+            "-ar", "8000",  # 8kHz sample rate
+            "-ac", "1",     # mono
+            "-acodec", "pcm_u8",  # 8-bit unsigned PCM
+            "-f", "wav",    # WAV format
             output_file
         ], check=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to convert audio: {e}")
-
-
-generateSpeech('王様の耳はロバの耳')
