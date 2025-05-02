@@ -94,18 +94,12 @@ void HTTPServer::handleClient() {
             return;
         }
 
-        // Get the vector from request
-        JsonArray inVec = requestDoc["vector"].as<JsonArray>();
-        
+        // Generate a random scalar between -1.5 and 1.5
+        float scalar = ((float)random(-1500, 1501)) / 1000.0f;
+
         // Create response document
-        StaticJsonDocument<1024> responseDoc;
-        JsonArray outVec = responseDoc.createNestedArray("vector");
-        
-        // Add 1.5 to each element
-        for (JsonVariant v : inVec) {
-            float value = v.as<float>();
-            outVec.add(value + 1.5f);
-        }
+        StaticJsonDocument<128> responseDoc;
+        responseDoc["scalar"] = scalar;
 
         // Prepare response
         String response;
