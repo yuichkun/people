@@ -45,7 +45,7 @@ def find_closest_word(vector):
     return closest[0][0] if closest else None
 
 
-def convertWords(words: Sequence[str], ip: str) -> list[str | None]:
+def convertWords(words: Sequence[str], ip: str) -> list[tuple[str, str | None]]:
     """
     For each word in the input list, get its vector, request a random scalar
     from the remote endpoint (constructed from the given IP), add this scalar
@@ -57,13 +57,14 @@ def convertWords(words: Sequence[str], ip: str) -> list[str | None]:
         ip: IP address of the remote server (endpoint will be constructed as
             'http://<ip>/vector').
     Returns:
-        List of closest words for each input word (or None if not found).
+        List of tuples containing (original_word, replacement_word) for each
+        input word. replacement_word can be None if processing failed.
     """
     endpoint = f"http://{ip}/vector"
-    results: list[str | None] = []
+    results: list[tuple[str, str | None]] = []
     for word in words:
         if word not in model:
-            results.append(None)
+            results.append((word, None))
             continue
         vec = model[word]
         print('sending ', word, len(vec), endpoint)
@@ -73,9 +74,42 @@ def convertWords(words: Sequence[str], ip: str) -> list[str | None]:
         response.raise_for_status()
         scalar = response.json().get("scalar")
         if scalar is None:
-            results.append(None)
+            results.append((word, None))
             continue
         modified_vec = vec + float(scalar)
         closest = find_closest_word(modified_vec)
-        results.append(closest)
+        results.append((word, closest))
     return results
+
+
+def modifySentence(sentence: str, remoteIp: str) -> str:
+    """
+    1. Extract nouns from the sentence using extract_nouns
+    2. For the extracted nouns, run convertWords with the remote ip
+    3. Replace all the nouns with the response
+    4. Return the modified sentence
+    """
+    # 1. Extract nouns
+    nouns = extract_nouns(sentence)
+
+    # 2. Convert nouns using remote IP
+    word_pairs = convertWords(nouns, remoteIp)
+
+    # 3. Replace nouns in the sentence
+    modified = sentence
+
+    # Filter out pairs where replacement is None
+    valid_replacements = [(original, replacement)
+                          for original, replacement in word_pairs
+                          if replacement is not None]
+
+    # Process longer words first to avoid partial word replacements
+    for original, replacement in sorted(
+            valid_replacements,
+            key=lambda x: len(x[0]),
+            reverse=True):
+        modified = modified.replace(original, replacement)
+
+    return modified
+
+print(modifySentence('昨日、犬と散歩した', '192.168.2.100'))

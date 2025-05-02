@@ -95,7 +95,7 @@ void HTTPServer::handleClient() {
         }
 
         // Generate a random scalar between -1.5 and 1.5
-        float scalar = ((float)random(-1500, 1501)) / 1000.0f;
+        float scalar = ((float)random(-500, 501)) / 1000.0f;
 
         // Create response document
         StaticJsonDocument<128> responseDoc;
