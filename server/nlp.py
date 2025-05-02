@@ -4,6 +4,7 @@ from functools import lru_cache
 from typing import List, Sequence
 from gensim.models import KeyedVectors
 import requests
+import random
 
 model_path = "word2vec_models/chive-1.3-mc5_gensim/chive-1.3-mc5.kv"
 model = KeyedVectors.load(model_path)
@@ -45,7 +46,9 @@ def find_closest_word(vector):
     return closest[0][0] if closest else None
 
 
-def convertWords(words: Sequence[str], ip: str) -> list[tuple[str, str | None]]:
+def convertWords(
+    words: Sequence[str], ip: str
+) -> list[tuple[str, str | None]]:
     """
     For each word in the input list, get its vector, request a random scalar
     from the remote endpoint (constructed from the given IP), add this scalar
@@ -86,30 +89,30 @@ def modifySentence(sentence: str, remoteIp: str) -> str:
     """
     1. Extract nouns from the sentence using extract_nouns
     2. For the extracted nouns, run convertWords with the remote ip
-    3. Replace all the nouns with the response
+    3. Replace one randomly selected noun with the response
     4. Return the modified sentence
     """
     # 1. Extract nouns
     nouns = extract_nouns(sentence)
 
-    # 2. Convert nouns using remote IP
-    word_pairs = convertWords(nouns, remoteIp)
+    # If no nouns detected, return original sentence
+    if not nouns:
+        return sentence
 
-    # 3. Replace nouns in the sentence
+    # 2. Randomly select one noun
+    selected_noun = random.choice(nouns)
+
+    # 3. Convert the selected noun using remote IP
+    word_pairs = convertWords([selected_noun], remoteIp)
+
+    # 4. Replace the noun in the sentence
     modified = sentence
 
-    # Filter out pairs where replacement is None
-    valid_replacements = [(original, replacement)
-                          for original, replacement in word_pairs
-                          if replacement is not None]
-
-    # Process longer words first to avoid partial word replacements
-    for original, replacement in sorted(
-            valid_replacements,
-            key=lambda x: len(x[0]),
-            reverse=True):
+    # Get the replacement (if not None)
+    original, replacement = word_pairs[0]
+    if replacement is not None:
         modified = modified.replace(original, replacement)
 
     return modified
 
-print(modifySentence('昨日、犬と散歩した', '192.168.2.100'))
+print(modifySentence('昨日、犬と朝日を見ながら散歩した', '192.168.2.100'))
