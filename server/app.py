@@ -13,10 +13,24 @@ def main():
 
     # Hardcoded list of client IP addresses (in order)
     client_ip_addresses = [
+        # 1
+        "192.168.2.103",
+        # 2
+        "192.168.2.104",
+        # 3
+        "192.168.2.105",
+        # 4
+        "192.168.2.106",
+        # 5
+        "192.168.2.107",
+        # 6
         "192.168.2.100",
-        "192.168.2.100",
-        "192.168.2.100",
-        # Add more IPs as needed
+        # 7
+        "192.168.2.108",
+        # 8
+        "192.168.2.109",
+        # 9
+        "192.168.2.110",
     ]
 
     # Hardcoded list of original sentences
@@ -62,6 +76,7 @@ def main():
                         f"Sent sentence to {client_ip}"
                     )
                     last_sentence = modified_sentence
+                    time.sleep(1)  # Optional: avoid tight infinite loop
                 except Exception as e:
                     logging.error(
                         f"Error processing client {client_ip} with sentence: "

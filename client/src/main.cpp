@@ -65,7 +65,7 @@ void setup() {
   } else {
     Serial.println("OLED display started");
     oledManager.setVerticalFlip(false);
-    oledManager.setText("うお〜〜！コップにはめて見るとイカちぃ〜最高！！");
+    oledManager.setText("5");
   }
   
   // HTTP サーバー初期化
