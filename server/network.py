@@ -1,6 +1,7 @@
 import socket
 import wave
 from speech import generateSpeech
+import requests
 
 
 def sendText(text: str, targetIp: str) -> None:
@@ -8,6 +9,12 @@ def sendText(text: str, targetIp: str) -> None:
     Generate speech from the given text, convert it to wav, and send the audio
     data over UDP to the target IP at port 5005.
     """
+
+    # Send HTTP POST request to /text endpoint with plain text payload
+    url = f"http://{targetIp}/text"
+    headers = {'Content-Type': 'text/plain'}
+    requests.post(url, data=text.encode('utf-8'), headers=headers)
+
     # 1. Generate speech and convert to tmp.wav
     generateSpeech(text)
 
