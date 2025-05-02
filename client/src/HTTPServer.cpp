@@ -1,4 +1,5 @@
 #include "HTTPServer.h"
+#include <ArduinoJson.h>
 
 HTTPServer::HTTPServer(uint16_t port) 
     : server(port), 
@@ -68,6 +69,55 @@ void HTTPServer::handleClient() {
         } else if (line.startsWith("Content-Length:")) {
             contentLength = line.substring(16).toInt();
         }
+    }
+
+    // Handle POST request to modify vector
+    if (method == "POST" && (uri == "/" || uri == "/vector")) {
+        String body = "";
+        if (contentLength > 0) {
+            char buffer[contentLength + 1];
+            client.readBytes(buffer, contentLength);
+            buffer[contentLength] = '\0';
+            body = String(buffer);
+        }
+
+        // Parse JSON request
+        StaticJsonDocument<1024> requestDoc;
+        DeserializationError error = deserializeJson(requestDoc, body);
+        if (error) {
+            client.println("HTTP/1.1 400 Bad Request");
+            client.println("Content-Type: text/plain");
+            client.println("Connection: close");
+            client.println();
+            client.println("Invalid JSON");
+            client.stop();
+            return;
+        }
+
+        // Get the vector from request
+        JsonArray inVec = requestDoc["vector"].as<JsonArray>();
+        
+        // Create response document
+        StaticJsonDocument<1024> responseDoc;
+        JsonArray outVec = responseDoc.createNestedArray("vector");
+        
+        // Add 1.5 to each element
+        for (JsonVariant v : inVec) {
+            float value = v.as<float>();
+            outVec.add(value + 1.5f);
+        }
+
+        // Prepare response
+        String response;
+        serializeJson(responseDoc, response);
+
+        client.println("HTTP/1.1 200 OK");
+        client.println("Content-Type: application/json");
+        client.println("Connection: close");
+        client.println();
+        client.println(response);
+        client.stop();
+        return;
     }
 
     // Handle POST request to update text
