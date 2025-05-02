@@ -94,8 +94,15 @@ void HTTPServer::handleClient() {
             return;
         }
 
-        // Generate a random scalar between -1.5 and 1.5
-        float scalar = ((float)random(-1000, 1001)) / 1000.0f;
+        // Generate a random scalar in either [-1.5, -1.0] or [1.0, 1.5]
+        float scalar;
+        if (random(0, 2) == 0) {
+            // Negative range: [-1.5, -1.0]
+            scalar = -1.5f + ((float)random(0, 501)) / 1000.0f;
+        } else {
+            // Positive range: [1.0, 1.5]
+            scalar = 1.0f + ((float)random(0, 501)) / 1000.0f;
+        }
 
         // Create response document
         StaticJsonDocument<128> responseDoc;
