@@ -114,5 +114,3 @@ def modifySentence(sentence: str, remoteIp: str) -> str:
         modified = modified.replace(original, replacement)
 
     return modified
-
-print(modifySentence('昨日、犬と朝日を見ながら散歩した', '192.168.2.100'))
