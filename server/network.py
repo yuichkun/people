@@ -2,6 +2,7 @@ import socket
 import wave
 from speech import generateSpeech
 import requests
+import logging
 
 
 def sendText(text: str, targetIp: str) -> None:
@@ -13,7 +14,31 @@ def sendText(text: str, targetIp: str) -> None:
     # Send HTTP POST request to /text endpoint with plain text payload
     url = f"http://{targetIp}/text"
     headers = {'Content-Type': 'text/plain'}
-    requests.post(url, data=text.encode('utf-8'), headers=headers)
+    print('sending request to:', targetIp)
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            requests.post(
+                url,
+                data=text.encode('utf-8'),
+                headers=headers,
+                timeout=5
+            )
+            break
+        except Exception as e:
+            if attempt == max_retries:
+                logging.warning(
+                    f"Failed to send POST to {targetIp} after "
+                    f"{max_retries} attempts. Error: {e}"
+                )
+                raise
+            else:
+                logging.info(
+                    f"Retrying POST to {targetIp} (attempt {attempt}/{max_retries}) "
+                    f"due to error: {e}"
+                )
+                import time
+                time.sleep(1)
 
     # 1. Generate speech and convert to tmp.wav
     generateSpeech(text)
@@ -28,7 +53,8 @@ def sendText(text: str, targetIp: str) -> None:
             w.getnchannels() == 1 and
             w.getsampwidth() == 1
         ), (
-            "tmp.wav must be 8kHz, mono, 16bit PCM (sampwidth=2)"
+            "tmp.wav must be 8kHz, mono, 16bit PCM "
+            "(sampwidth=2)"
         )
         CHUNK = 512
         data = w.readframes(CHUNK)

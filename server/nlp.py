@@ -71,7 +71,7 @@ def convertWords(
             continue
         vec = model[word]
         print('sending ', word, len(vec), endpoint)
-        response = requests.post(endpoint, json={})
+        response = requests.post(endpoint, json={}, timeout=2)
         print('res')
         print(response)
         response.raise_for_status()
