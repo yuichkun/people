@@ -2,6 +2,7 @@ from nlp import modifySentence
 from network import sendText
 import logging
 import time
+import random
 
 
 def main():
@@ -58,6 +59,7 @@ def main():
         "一周回って「プロンプト大事だ」という気持ちになってきた。",
         "楽天証券、2段階認証がなんの意味もないｗ",
     ]
+    random.shuffle(original_sentences)
 
     # Infinite loop
     while True:
